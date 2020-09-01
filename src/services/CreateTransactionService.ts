@@ -1,8 +1,9 @@
-// import AppError from '../errors/AppError';
-
 import { getRepository } from 'typeorm';
+
 import Transaction from '../models/Transaction';
 import Category from '../models/Category';
+
+import AppError from '../errors/AppError';
 
 interface RequestDTO {
   title: string;
@@ -21,6 +22,18 @@ class CreateTransactionService {
     const transactionRepository = getRepository(Transaction);
 
     const categoryRepository = getRepository(Category);
+
+    const allTransactions = await transactionRepository.find();
+
+    if (type === 'outcome') {
+      const balancePositive = allTransactions.reduce((total, transac) => {
+        if (transac.type === 'income') return total + transac.value;
+        return total;
+      }, 0);
+
+      if (balancePositive - value < 0)
+        throw new AppError('Your incomes its smaller then outcome', 400);
+    }
 
     let categoryExists;
 
