@@ -25,7 +25,7 @@ class CreateTransactionService {
 
     const allTransactions = await transactionRepository.find();
 
-    if (type === 'outcome') {
+    if (type === 'outcome' && allTransactions.length > 0) {
       const balancePositive = allTransactions.reduce((total, transac) => {
         if (transac.type === 'income') return total + transac.value;
         return total;
